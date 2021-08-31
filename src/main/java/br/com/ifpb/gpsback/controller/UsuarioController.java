@@ -19,6 +19,7 @@ import br.com.ifpb.gpsback.model.Task;
 import br.com.ifpb.gpsback.model.Usuario;
 import br.com.ifpb.gpsback.repository.TaskRepository;
 import br.com.ifpb.gpsback.repository.UsuarioRepository;
+
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/usuario")
@@ -32,8 +33,8 @@ public class UsuarioController {
 
 	// CRIAR USUARIO
 	@PostMapping("criarusuario")
-	public void novo(@RequestBody Usuario usuario) {
-		usuarioRepository.save(usuario);
+	public Usuario novo(@RequestBody Usuario usuario) {
+		return usuarioRepository.save(usuario);
 	}
 
 	// LER TODOS USUARIOS
@@ -52,7 +53,7 @@ public class UsuarioController {
 
 	// ATUALIZAR USUARIO
 	@PutMapping(value = "atualizarusuario/{idusu}")
-	public ResponseEntity update(@PathVariable long idusu, @RequestBody Usuario usuario) {
+	public Usuario update(@PathVariable long idusu, @RequestBody Usuario usuario) {
 
 		Usuario usuarioDb = usuarioRepository.findById(idusu).get();
 
@@ -60,7 +61,7 @@ public class UsuarioController {
 		usuarioDb.setName(usuario.getName());
 		usuarioDb.setPassword(usuario.getPassword());
 		Usuario usuarioAtualizado = usuarioRepository.save(usuarioDb);
-		return ResponseEntity.ok().body(usuarioAtualizado);
+		return usuarioAtualizado;
 
 	}
 
@@ -75,14 +76,15 @@ public class UsuarioController {
 
 	// ADICIONAR TASK EM USUARIO
 	@PostMapping("adicionartask/{idusu}")
-	public ResponseEntity adicionarTaskEmUsuario(@PathVariable long idusu, @RequestBody Task task) {
-		return usuarioRepository.findById(idusu).map(u -> {
+	public Task adicionarTaskEmUsuario(@PathVariable long idusu, @RequestBody Task task) {
+		usuarioRepository.findById(idusu).map(u -> {
 			task.setUsuario(u);
 			u.adicionarTask(task);
 			taskRepository.save(task);
 			usuarioRepository.save(u);
-			return ResponseEntity.ok().build();
-		}).orElse(ResponseEntity.notFound().build());
+			return task;
+		});
+		return null;
 	}
 
 	// DELETAR TASK ESPECIFICA DO USUARIO ESPECIFICO
@@ -103,7 +105,7 @@ public class UsuarioController {
 
 	// ATUALIZAR TASK ESPECIFICA DE USUARIO ESPECIFICO
 	@PutMapping(value = "{idusu}/atualizartask/{id}")
-	public void update(@PathVariable long idusu, @PathVariable long id, @RequestBody Task task) {
+	public List<Task> update(@PathVariable long idusu, @PathVariable long id, @RequestBody Task task) {
 
 		List<Task> taskUsuario = usuarioRepository.findById(idusu).get().getTasks();
 		taskUsuario.forEach(t -> {
@@ -112,7 +114,26 @@ public class UsuarioController {
 			t.setStatus(task.getStatus());
 			t.setTitle(task.getTitle());
 			taskRepository.save(t);
-		});
 
+		});
+		return taskUsuario;
+	}
+
+	// RETORNA A TASK ESPECIFICA DO USUARIO ESPECIFICO
+	@GetMapping(path = { "/{idusu}/tasks/{idtask}" })
+	public List<Task> findById2(@PathVariable long idusu, @PathVariable long idtask) {
+		List<Task> task = usuarioRepository.findById(idusu).get().getTasks();
+		List<Task> tasksIdCerto = task.stream().filter(t -> t.getId() == idtask).toList();
+		return tasksIdCerto;
+	}
+
+	// RETORNA O USUARIO QUE IRA LOGAR
+	@PostMapping("/login")
+	public Usuario login(@RequestBody Usuario usuario) {
+		Usuario usuarioEmail = usuarioRepository.findByEmail(usuario.getEmail());
+		if (usuarioEmail.getPassword().equals(usuario.getPassword())) {
+			return usuarioEmail;
+		}
+		return null;
 	}
 }
