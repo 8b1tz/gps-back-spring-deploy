@@ -1,6 +1,5 @@
 package br.com.ifpb.gpsback.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 public class Task {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
 	private String title;
