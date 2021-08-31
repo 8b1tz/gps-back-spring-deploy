@@ -123,8 +123,14 @@ public class UsuarioController {
 	@GetMapping(path = { "/{idusu}/tasks/{idtask}" })
 	public List<Task> findById2(@PathVariable long idusu, @PathVariable long idtask) {
 		List<Task> task = usuarioRepository.findById(idusu).get().getTasks();
-		List<Task> tasksIdCerto = task.stream().filter(t -> t.getId() == idtask).toList();
-		return tasksIdCerto;
+		List<Task> tasksParaDevolver = new ArrayList<>();
+		task.forEach(t -> {
+			if (t.getId() == idtask) {
+				tasksParaDevolver.add(t);
+			}
+
+		});
+		return tasksParaDevolver;
 	}
 
 	// RETORNA O USUARIO QUE IRA LOGAR
