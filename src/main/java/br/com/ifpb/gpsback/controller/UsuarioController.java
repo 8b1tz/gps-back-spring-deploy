@@ -77,22 +77,21 @@ public class UsuarioController {
 	// ADICIONAR TASK EM USUARIO
 	@PostMapping("adicionartask/{idusu}")
 	public Task adicionarTaskEmUsuario(@PathVariable long idusu, @RequestBody Task task) {
-		usuarioRepository.findById(idusu).map(u -> {
+		usuarioRepository.findById(idusu).stream().forEach(u -> {
 			task.setUsuario(u);
 			u.adicionarTask(task);
 			taskRepository.save(task);
 			usuarioRepository.save(u);
-			return task;
 		});
-		return null;
+		return task;
 	}
 
 	// DELETAR TASK ESPECIFICA DO USUARIO ESPECIFICO
-	@DeleteMapping(path = { "{idusu}/removertask/{id}" })
-	public ResponseEntity delete(@PathVariable long idusu, @PathVariable long id) {
+	@DeleteMapping(path = { "{idusu}/removertask/{idtask}" })
+	public ResponseEntity delete(@PathVariable long idusu, @PathVariable long idtask) {
 		return usuarioRepository.findById(idusu).map(u -> {
-			u.removerTask(taskRepository.getById(id));
-			taskRepository.delete(taskRepository.getById(id));
+			u.removerTask(taskRepository.getById(idtask));
+			taskRepository.delete(taskRepository.getById(idtask));
 			return ResponseEntity.ok().build();
 		}).orElse(ResponseEntity.notFound().build());
 	}
@@ -119,7 +118,7 @@ public class UsuarioController {
 		return taskUsuario;
 	}
 
-	// RETORNA A TASK ESPECIFICA DO USUARIO ESPECIFICO
+	// RETORNA TODAS AS TASKS DO USUARIO ESPECIFICO
 	@GetMapping(path = { "/{idusu}/tasks/{idtask}" })
 	public List<Task> findById2(@PathVariable long idusu, @PathVariable long idtask) {
 		List<Task> task = usuarioRepository.findById(idusu).get().getTasks();
@@ -128,7 +127,6 @@ public class UsuarioController {
 			if (t.getId() == idtask) {
 				tasksParaDevolver.add(t);
 			}
-
 		});
 		return tasksParaDevolver;
 	}
