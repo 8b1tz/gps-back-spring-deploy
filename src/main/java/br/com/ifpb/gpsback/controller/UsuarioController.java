@@ -77,7 +77,14 @@ public class UsuarioController {
 	// ADICIONAR TASK EM USUARIO
 	@PostMapping("adicionartask/{idusu}")
 	public Task adicionarTaskEmUsuario(@PathVariable long idusu, @RequestBody Task task) {
-		usuarioRepository.findById(idusu).stream().forEach(u -> {
+		List<Usuario> usuarios = usuarioRepository.findAll();
+		List<Usuario> usuariosComId = new ArrayList<>();
+		for (Usuario u : usuarios) {
+			if (u.getId() == idusu) {
+				usuariosComId.add(u);
+			}
+		}
+		usuariosComId.forEach(u -> {
 			task.setUsuario(u);
 			u.adicionarTask(task);
 			taskRepository.save(task);
