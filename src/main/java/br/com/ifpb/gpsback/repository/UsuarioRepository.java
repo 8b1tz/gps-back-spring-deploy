@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 import br.com.ifpb.gpsback.model.Usuario;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long>{
-
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
 	Usuario findByEmail(String email);
 

@@ -110,11 +110,17 @@ public class UsuarioController {
 	}
 
 	// ATUALIZAR TASK ESPECIFICA DE USUARIO ESPECIFICO
-	@PutMapping(value = "{idusu}/atualizartask/{id}")
-	public List<Task> update(@PathVariable long idusu, @PathVariable long id, @RequestBody Task task) {
+	@PutMapping(value = "{idusu}/atualizartask/{idtask}")
+	public List<Task> update(@PathVariable long idusu, @PathVariable long idtask, @RequestBody Task task) {
 
 		List<Task> taskUsuario = usuarioRepository.findById(idusu).get().getTasks();
-		taskUsuario.forEach(t -> {
+		List<Task> taskEspecifica = new ArrayList<>();
+		for (Task taskUsu : taskUsuario) {
+			if (taskUsu.getId() == idtask) {
+				taskEspecifica.add(taskUsu);
+			}
+		}
+		taskEspecifica.forEach(t -> {
 			t.setDate(task.getDate());
 			t.setDescription(task.getDescription());
 			t.setStatus(task.getStatus());
@@ -122,7 +128,7 @@ public class UsuarioController {
 			taskRepository.save(t);
 
 		});
-		return taskUsuario;
+		return taskEspecifica;
 	}
 
 	// RETORNA TODAS AS TASKS DO USUARIO ESPECIFICO
